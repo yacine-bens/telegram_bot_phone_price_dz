@@ -143,11 +143,14 @@ async function getPhones(search) {
             let link = 'http://webstar-electro.com' + phone.querySelector('ul li.produit_titre a').href;
             let price = phone.querySelector('ul li.produit_valeur h4.prix').textContent.replace('Prix', '').trim();
             let detailsElement = phone.querySelectorAll('ul li.produit_valeur h4.libelle-properties');
-            let details = detailsElement[0].textContent.trim() + '\n- ' + detailsElement[1].textContent.trim();
-            // remove extra whitespaces
-            details = details.replaceAll(/[^\S\r\n]+/g, ' ').trim();
-
-            details = '- ' + details.replace('Pouces ', 'Pouces\n- ').replace('Go ', 'Go\n- ');
+            let details = '';
+            if(detailsElement[0] && detailsElement[1]){
+                details = detailsElement[0].textContent.trim() + '\n- ' + detailsElement[1].textContent.trim();
+                // remove extra whitespaces
+                details = details.replaceAll(/[^\S\r\n]+/g, ' ').trim();
+    
+                details = '- ' + details.replace('Pouces ', 'Pouces\n- ').replace('Go ', 'Go\n- ');
+            }
 
             let phoneObj = {
                 title: title,
