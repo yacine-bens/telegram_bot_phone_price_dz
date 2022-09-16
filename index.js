@@ -40,18 +40,37 @@ app.post(URI, async (req, res) => {
         if (messageText === '/start') response_message = 'Please enter phone model.'
     }
     else {
+        // Send please wait message
+        await axios.post(`${TELEGRAM_API}/sendMessage`, {
+            chat_id: chatId,
+            text: 'Please wait...'
+        })
+
         let phones = await getPhones(messageText);
         // Found results
         if (phones.length) {
-            phones.forEach(phone => {
-                response_message += `<a href="${phone['link']}">${phone['title']}</a>\n${phone['details']}\n--------------------------\nPrix :  ${phone['price']}\n\n`;
-            })
-            response_message += `\nResults found: ${phones.length}`;
+            for (let i = 0; i < phones.length; i++) {
+                response_message += `<a href="${phones[i]['link']}">${phones[i]['title']}</a>\n${phones[i]['details']}\n--------------------------\nPrix :  ${phones[i]['price']}\n\n`;
+                // Split large message
+                if (response_message.length > 8000) {
+                    await axios.post(`${TELEGRAM_API}/sendMessage`, {
+                        chat_id: chatId,
+                        text: response_message,
+                        parse_mode: 'html',
+                        disable_web_page_preview: true
+                    })
+                    // Clear message
+                    response_message = '';
+                }
+            }
+            response_message += `\nResults found : ${phones.length}`;
         }
         else {
-            response_message = `No results found for:\n"${messageText}"`;
+            response_message = `No results found for :\n"${messageText}"`;
         }
     }
+
+    console.log(response_message.length);
 
     //Respond to user
     if (response_message != '') {
@@ -129,7 +148,7 @@ async function getPhones(search) {
             details = details.replaceAll(/[^\S\r\n]+/g, ' ').trim();
 
             details = '- ' + details.replace('Pouces ', 'Pouces\n- ').replace('Go ', 'Go\n- ');
-            
+
             let phoneObj = {
                 title: title,
                 link: link,
