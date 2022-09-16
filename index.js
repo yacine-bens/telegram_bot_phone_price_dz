@@ -46,9 +46,10 @@ app.post(URI, async (req, res) => {
             phones.forEach(phone => {
                 response_message += `<a href="${phone['link']}">${phone['title']}</a>\n${phone['details']}\n--------------------------\nPrix :  ${phone['price']}\n\n`;
             })
+            response_message += `\nResults found: ${phones.length}`;
         }
         else {
-            response_message = `Did not find results for:\n"${messageText}"`;
+            response_message = `No results found for:\n"${messageText}"`;
         }
     }
 
